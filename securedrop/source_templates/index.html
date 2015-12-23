@@ -3,7 +3,8 @@
   <head>
     <title>SecureDrop | Protecting Journalists and Sources</title>
     {% assets filters="cssmin", output="gen/source.css",
-      "css/normalize.css", "css/source.css", "css/font-awesome.css" %}
+      "css/normalize.css", "css/source.css", "css/font-awesome.css",
+      "css/pure-min.css" %}
       <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %}
 
@@ -11,12 +12,24 @@
       "js/libs/jquery-2.1.4.min.js", "js/source.js" %}
       <script type="javascript" src="{{ ASSET_URL }}"></script>
     {% endassets %}
+
+    <style>
+        .langified, .langified:target ~ #lang\={{ source_default_lang }} {
+            display: none;
+        }
+
+        #lang\={{ source_default_lang }} , .langified:target {
+            display: block;
+        }
+    </style>
+
   </head>
   <body>
-    <div class="warning"><strong>We recommend disabling JavaScript to protect your anonymity:</strong> <a id="disable-js" href="/howto-disable-js">Learn how to disable it</a>, or ignore this warning to continue. <i id="warning-close" class="fa fa-times"></i></div>
+    {% for lang in langees['available_languages'] %}
+    <div class="langified" id="lang={{ lang }}">
+        <div class="warning"><strong>We recommend disabling JavaScript to protect your anonymity:</strong> <a id="disable-js" href="/howto-disable-js#lang={{ lang }}">Learn how to disable it</a>, or ignore this warning to continue. <i id="warning-close" class="fa fa-times"></i></div>
 
     {% include 'banner_warning_flashed.html' %}
-
     <div class="content">
       <div class="grid">
 	{% include 'flashed.html' %}
@@ -28,28 +41,44 @@
             <img src="/static/i/securedrop_small.png" alt="SecureDrop">
           </div>
           {% endif %}
+          <div class="pure-menu pure-menu-horizontal langselector">
+              <ul class="pure-menu-list">
+                  <li class="pure-menu-item pure-menu-selected pure-menu-has-children pure-menu-allow-hover">
+                      <a class="pure-menu-link" href="#lang={{ lang }}">{{ langees['available_languages'][lang] }}</a>
+                      <ul class="pure-menu-children">
+                      {% for l in langees['available_languages'] %}
+                      {% if l != lang %}
+                      <li class="pure-menu-item">
+                              <a class="pure-menu-link" href="#lang={{ l }}">{{ langees['available_languages'][l] }}</a>
+                          </li>
+                      {% endif %}
+                      {% endfor %}
+                      </ul>
+                  </li>
+              </ul>
+          </div>
         </div>
 
         <div class="grid-item option alt">
           <h2>
-            Submit documents for the first time
+              {{ langees['submit_first_time'][lang] }}
           </h2>
           <hr class="cut-out" />
-          <p>If this is your first time submitting documents to journalists, start here.</p>
-          <a href="/generate" class="btn alt block" id="submit-documents-button"><i class="fa fa-cloud-upload"></i> Submit Documents</a>
+          <p>{{ langees['submit_first_time_caption'][lang] }}</p>
+          <a href="/generate#lang={{ lang }}" class="btn alt block" id="submit-documents-button"><i class="fa fa-cloud-upload"></i> {{ langees['submit_docs_button'][lang] }}</a>
         </div>
         <div class="grid-item option">
           <h2>
-            Already submitted something?
+              {{ langees['already_submit_question'][lang] }}
           </h2>
           <hr class="cut-out" />
-          <p>If you have already submitted documents in the past, log in here to check for responses.</p>
-          <a href="/login" class="btn block"><i class="fa fa-comments"></i> Check for a response</a>
+          <p>{{ langees['already_submit_caption'][lang] }}</p>
+          <a href="/login#lang={{ lang }}" class="btn block"><i class="fa fa-comments"></i> {{ langees['check_response_button'][lang] }}</a>
         </div>
       </div>
 
       <footer>
-        Like all software, SecureDrop may contain security bugs. Use at your own risk. Powered by SecureDrop {{ version }}.
+          {{ langees['bugs_disclaimer'][lang] }} {{ version }}.
       </footer>
     </div>
 
@@ -57,14 +86,16 @@
     Included here so the images can preload while the user is first
     reading the page. Hidden by default. -->
     <div class="bubble">
-      <p>You appear to be using the Tor Browser. You can disable Javascript in 3 easy steps!</p> 
+        <p>{{ langees['tbb_three_steps'][lang] }}</p> 
       <ol>
         <li>Click the <img src="static/i/no16.png" alt="NoScript icon" /> NoScript icon in the toolbar above</li>
         <li>Click <strong><img src="static/i/no16-global.png" alt="Forbid Scripts Globally" /> Forbid Scripts Globally (advised)</strong></li>
-        <li>If the page does not refresh automatically, <a href="/">click here</a> to refresh the page</li> 
+        <li>If the page does not refresh automatically, <a href="/#lang={{ lang }}">click here</a> to refresh the page</li> 
       </ol>
-      <p><a href="/howto-disable-js">Not using the Tor Browser Bundle?</a></p>
+      <p><a href="/howto-disable-js#lang={{ lang }}">Not using the Tor Browser Bundle?</a></p>
     </div>
 
+    </div>
+    {% endfor %}
   </body>
 </html>
